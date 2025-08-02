@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y \
 
 # Set working directory
 WORKDIR /app
-# Copy your backend files
+
+# Copy all files
 COPY . .
-# Make build script executable and run it
-RUN chmod +x build.sh && ./build.sh
+
+# Make build and start scripts executable
+RUN chmod +x build.sh start.sh && ./build.sh
 
 # Start the app
 CMD ["./start.sh"]
