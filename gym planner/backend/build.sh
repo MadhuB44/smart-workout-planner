@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "🏗️  Building Smart Workout Planner Backend..."
 
 mkdir -p build
