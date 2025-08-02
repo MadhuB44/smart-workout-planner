@@ -1,13 +1,17 @@
-#!/bin/bash
+echo "🏗️  Building Smart Workout Planner Backend..."
 
-echo "🏋️ Starting Smart Workout Planner Server..."
+mkdir -p build
+cd build
 
-cd build/bin
+echo "🔧 Running CMake configuration..."
+cmake ..
 
-if [[ -x smart_workout_planner ]]; then
-    ./smart_workout_planner
+echo "🛠️ Building the project..."
+make
+
+if [ $? -eq 0 ]; then
+    echo "✅ Build successful!"
 else
-    echo "❌ Executable 'smart_workout_planner' not found or not executable."
-    echo "💡 Try running ./build.sh to compile first."
+    echo "❌ Build failed!"
     exit 1
 fi
