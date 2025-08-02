@@ -1,5 +1,4 @@
 [build]
-# Add necessary system packages here
 packages = ["cmake", "g++", "make"]
 
 [phases.build]
