@@ -1,14 +1,11 @@
-#!/bin/bash
-
-# Smart Workout Planner - Server Start Script
 
 echo "🏋️ Starting Smart Workout Planner Server..."
 
-# Check if the executable exists
-EXECUTABLE="./bin/smart_workout_planner"
+EXECUTABLE="./build/bin/smart_workout_planner"
+
 if [ ! -f "$EXECUTABLE" ]; then
     echo "❌ Server executable not found! Please build first with: ./build.sh"
-    echo "💡 Make sure you're in the build/ directory"
+    echo "💡 Make sure you're in the project root or Docker context"
     exit 1
 fi
 
