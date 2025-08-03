@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
 import { Search, Filter, Download, Calendar, Dumbbell, Target, TrendingUp, Clock, Flame, Check, X, ChevronDown, ChevronUp, Star, Heart, Zap, Play } from 'lucide-react'
-import axios from 'axios'
 
 interface UserData {
   height: number
@@ -302,6 +301,12 @@ export default function FitnessAnalyzer() {
     }
   }, [showSuccessMessage])
 
+  const updateField = (field: keyof UserData, value: any) => {
+    setUserData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  };
   const analyzeData = async () => {
     if (!validateForm()) {
       return
@@ -311,8 +316,8 @@ export default function FitnessAnalyzer() {
     setIsAnalyzing(true)
     setError('')
 
-    try {
-      // Prepare data in the format expected by backend
+    try {  // FIXED: Start try block here
+
       const requestData = {
         height: userData.height,
         weight: userData.weight,
@@ -339,50 +344,49 @@ export default function FitnessAnalyzer() {
 
       setResults(data.analysis);
 
-      try {
-        const workoutPlanData = data.workoutPlan;
-        console.log("Raw workout plan data:", workoutPlanData);
+      const workoutPlanData = data.workoutPlan;
+      console.log("Raw workout plan data:", workoutPlanData);
 
-        let weeklySchedule = workoutPlanData.weeklySchedule || {};
-        console.log("Weekly schedule from backend:", weeklySchedule);
+      let weeklySchedule = workoutPlanData.weeklySchedule || {};
+      console.log("Weekly schedule from backend:", weeklySchedule);
 
-        setWorkoutPlan({
-          id: workoutPlanData.id || "plan-1",
-          name: workoutPlanData.name || "Smart Workout Plan",
-          description: workoutPlanData.description || "AI-generated workout plan",
-          exercises: [],
-          weeklySchedule: weeklySchedule,
-          weeklyCalories: workoutPlanData.weeklyCalories || 0,
-          status: workoutPlanData.status || "Generated successfully",
-        });
-      } catch (err) {
-        console.error("Error parsing workout plan:", err);
+      setWorkoutPlan({
+        id: workoutPlanData.id || "plan-1",
+        name: workoutPlanData.name || "Smart Workout Plan",
+        description: workoutPlanData.description || "AI-generated workout plan",
+        exercises: [],
+        weeklySchedule: weeklySchedule,
+        weeklyCalories: workoutPlanData.weeklyCalories || 0,
+        status: workoutPlanData.status || "Generated successfully",
+      });
 
-        setWorkoutPlan({
-          id: 'plan-fallback',
-          name: 'Workout Plan (Processing Error)',
-          description: 'Plan generated but display error occurred',
-          exercises: [],
-          weeklySchedule: {}, // optional but safer
-          weeklyCalories: 0,
-          status: 'Fallback plan',
-        });
-
-      const updateField = (field: keyof UserData, value: any) => {
-        setUserData(prev => ({
-          ...prev,
-          [field]: value
-        }))
+    } catch (err: any) {   // FIXED: catch right after try
+      console.error('Analysis error:', err);
+      if (err.response) {
+        console.error('Response data:', err.response.data);
+        console.error('Response status:', err.response.status);
+        setError(`Server error: ${err.response.data.error || err.response.statusText}`);
+      } else if (err.request) {
+        console.error('Request failed:', err.request);
+        setError('Cannot connect to backend server. Make sure the C++ server is running on port 8080.');
+      } else {
+        console.error('Error message:', err.message);
+        setError(`Request error: ${err.message}`);
       }
+    } finally {    // FIXED: finally block
+      setLoading(false);
+      setIsAnalyzing(false);
+    }
+  }
 
-      const toggleDay = (day: string) => {
-        const newDays = userData.availableDays.includes(day)
-            ? userData.availableDays.filter(d => d !== day)
-            : [...userData.availableDays, day]
-        updateField('availableDays', newDays)
-      }
+  const toggleDay = (day: string) => {
+      const newDays = userData.availableDays.includes(day)
+          ? userData.availableDays.filter(d => d !== day)
+          : [...userData.availableDays, day];
+      updateField('availableDays', newDays);
+    };
 
-      const setPriorityLevel = (muscleGroup: string, priority: string) => {
+    const setPriorityLevel = (muscleGroup: string, priority: string) => {
         updateField('muscleGroupPriorities', {
           ...userData.muscleGroupPriorities,
           [muscleGroup]: priority
